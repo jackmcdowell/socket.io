@@ -8,6 +8,7 @@ $(function() {
   ];
 
   // Initialize varibles
+  //var emotes = require('./emoticons.js');
   var $window = $(window);
   var $usernameInput = $('.usernameInput'); // Input for username
   var $messages = $('.messages'); // Messages area
@@ -22,8 +23,9 @@ $(function() {
   var typing = false;
   var lastTypingTime;
   var $currentInput = $usernameInput.focus();
-
+  var emotes = './emoticons.js';
   var socket = io();
+  
 
   function addParticipantsMessage (data) {
     var message = '';
@@ -51,6 +53,11 @@ $(function() {
     }
   }
 
+//Replace Message with Emoticons
+
+function htmlEntities(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
   // Sends a chat message
   function sendMessage () {
     var message = $inputMessage.val();
@@ -61,7 +68,13 @@ $(function() {
       $inputMessage.val('');
       addChatMessage({
         username: username,
-        message: message
+	message: emojify.replace(htmlEntities(message)),
+
+//.replace(":)", ":("),        
+
+//message: message,
+
+//.replace(":)", escapeHTML('<img src="/img/smile.png" alt=":-)" />')),
       });
       // tell server to execute 'new message' and send along one parameter
       socket.emit('new message', message);
@@ -88,7 +101,7 @@ $(function() {
       .text(data.username)
       .css('color', getUsernameColor(data.username));
     var $messageBodyDiv = $('<span class="messageBody">')
-      .text(data.message);
+      .html(data.message);
 
     var typingClass = data.typing ? 'typing' : '';
     var $messageDiv = $('<li class="message"/>')
